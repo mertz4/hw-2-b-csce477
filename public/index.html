@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juice Shop Login Demo</title>
+</head>
+<body>
+
+    <h2>Login</h2>
+
+    <form id="loginForm">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email">
+
+        <br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password">
+
+        <br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p id="message"></p>
+
+    <script>
+        const form = document.getElementById("loginForm");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+
+            // Client-side validation
+            if (email === "" || password === "") {
+                message.textContent = "Email and password cannot be empty.";
+                return;
+            }
+
+            if (!email.includes("@")) {
+                message.textContent = "Email must contain @.";
+                return;
+            }
+
+            if (password.length < 8) {
+                message.textContent = "Password must be at least 8 characters.";
+                return;
+            }
+
+            // Send values to server for server-side validation
+            try {
+                const response = await fetch("/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const data = await response.json();
+                message.innerHTML = data.message;
+
+            } catch (error) {
+                message.textContent = "Could not connect to server.";
+            }
+        });
+    </script>
+
+</body>
+</html>
