@@ -6,7 +6,6 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Serve files from the public folder
 app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/login", (req, res) => {
@@ -16,6 +15,16 @@ app.post("/login", (req, res) => {
     if (!email || !password) {
         return res.status(400).json({
             message: "Email and password are required."
+        });
+    }
+
+    // Reject suspicious SQL-related input
+    const sqlPattern =
+        /('|--|;|\bOR\b|\bUNION\b|\bSELECT\b|\bDROP\b|\bINSERT\b|\bDELETE\b)/i;
+
+    if (sqlPattern.test(email) || sqlPattern.test(password)) {
+        return res.status(400).json({
+            message: "Invalid input detected."
         });
     }
 
@@ -32,10 +41,10 @@ app.post("/login", (req, res) => {
     }
 
     return res.status(200).json({
-    message: `Welcome back! You logged in as: ${email}`
-});
+        message: `Welcome back! You logged in as: ${email}`
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
